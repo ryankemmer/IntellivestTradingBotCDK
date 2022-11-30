@@ -1,12 +1,16 @@
-import * as cdk from '@aws-cdk/core';
-import * as lambda from '@aws-cdk/aws-lambda';
-import * as targets from '@aws-cdk/aws-events-targets'
-import * as events from '@aws-cdk/aws-events'
+import { Stack, StackProps} from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import { aws_lambda as lambda } from 'aws-cdk-lib';
+import { aws_events_targets as targets } from 'aws-cdk-lib';
+import { aws_events as events } from 'aws-cdk-lib';
+import { aws_dynamodb as dynamodb } from 'aws-cdk-lib';
+import { aws_s3 as s3 } from 'aws-cdk-lib';
 
-export class IntellivestTradingBotCdkStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
+export class IntellivestTradingBotCdkStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
-
+    
+    //Create lambda function
     const newLambda = new lambda.DockerImageFunction(this, 'scheduledLambda',{
       code: lambda.DockerImageCode.fromImageAsset('functions')
     });
@@ -23,5 +27,13 @@ export class IntellivestTradingBotCdkStack extends cdk.Stack {
         }),
     });
     eventRule.addTarget(new targets.LambdaFunction(newLambda))
+
+    //Create DynamoDB to store trades
+    const table = new dynamodb.Table(this, 'TradesTable', {
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+    });
+
+    //Create s3 Bucket to store models and artifacts
+    const bucket = new s3.Bucket(this, 'ArtifactsBucket');
   }
 }

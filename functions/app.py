@@ -1,5 +1,10 @@
-import sys
-import sklearn
+import logging
+from functools import reduce
 
 def handler(event, context):
-    return 'Hello from AWS Lambda using Python' + sys.version + '!'
+
+    print('lets start')
+    return {
+        'statusCode': 200,
+        'body': json.dumps(f'Done! Recorded')
+    }

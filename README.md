@@ -20,6 +20,7 @@ curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d
 
 
 * `npm run build`   compile typescript to js
+* `cdk synth`       synthesize couldformation stack
 * `cdk deploy`      deploy this stack to your default AWS account/region
 
 
