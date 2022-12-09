@@ -6,8 +6,9 @@ The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
 ## Updating this project
 
-* Edit python lambda code in `functions` folder to update trading logic
-* Run `pipreqs functions --force` in the root directory of the project to update Python dependencies
+* Edit python lambda code in `buyingfunction` folder to update buying logic
+* Edit python lambda code in `sellingfunction` folder to update selling logic
+* Run `pipreqs buyingfunction --force` and `pipreqs sellingfunction --force` in the root directory of the project to update Python dependencies
 * <b>Optional</b> - test to make sure container will build
 
 ```

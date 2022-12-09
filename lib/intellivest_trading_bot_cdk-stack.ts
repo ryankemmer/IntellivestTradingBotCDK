@@ -11,26 +11,27 @@ export class IntellivestTradingBotCdkStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    const lambdaARole = new Role(this, 'LambdaRole', {
+    //Create Role for Dynamo
+    const lambdaRole = new Role(this, 'LambdaRole', {
       assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
     });
 
-    lambdaARole.addManagedPolicy(
+    lambdaRole.addManagedPolicy(
       ManagedPolicy.fromAwsManagedPolicyName('AmazonDynamoDBFullAccess')
     );
     
-    //Create lambda function
-    const newLambda = new lambda.DockerImageFunction(this, 'scheduledLambda',{
-      functionName: "tradinglambda",
+    //Create lambda function for opening new trades
+    const buyingLambda = new lambda.DockerImageFunction(this, 'buyingLambda',{
+      functionName: "buyinglambda",
       memorySize: 500,
-      timeout: Duration.seconds(30),
-      code: lambda.DockerImageCode.fromImageAsset('functions'),
-      role: lambdaARole,
+      timeout: Duration.minutes(10),
+      code: lambda.DockerImageCode.fromImageAsset('buyingfunction'),
+      role: lambdaRole,
     });
 
     // Run every weekday day at 1:30PM UTC
     // See https://docs.aws.amazon.com/lambda/latest/dg/tutorial-scheduled-events-schedule-expressions.html
-    const eventRule = new events.Rule(this, 'scheduleRule', {
+    const eventRuleDaily = new events.Rule(this, 'tradeClosingSchedule', {
       schedule: events.Schedule.cron({ 
         minute: '30', 
         hour: '13',
@@ -39,18 +40,39 @@ export class IntellivestTradingBotCdkStack extends Stack {
         year: '*'
         }),
     });
-    eventRule.addTarget(new targets.LambdaFunction(newLambda))
+    eventRuleDaily.addTarget(new targets.LambdaFunction(buyingLambda))
+
+    //Create lambda function for closing trades
+    const sellingLambda = new lambda.DockerImageFunction(this, 'sellingLambda',{
+      functionName: "sellinglambda",
+      memorySize: 500,
+      timeout: Duration.minutes(1),
+      code: lambda.DockerImageCode.fromImageAsset('sellingfunction'),
+      role: lambdaRole,
+    });
+
+    // Run every 30 seconds in open trading hours (starting 30 minutes early)
+    const eventRuleMonitor = new events.Rule(this, 'monitorSchedule', {
+      schedule: events.Schedule.cron({ 
+        minute: '*/30', 
+        hour: '9-17',
+        month: '*', 
+        weekDay: 'MON-FRI', 
+        year: '*'
+        }),
+    });
+    eventRuleMonitor.addTarget(new targets.LambdaFunction(sellingLambda))
 
     //Create DynamoDB to store trades
     const tradestable = new dynamodb.Table(this, 'TradesTable', {
       tableName: 'tradestable',
-      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      partitionKey: { name: 'date', type: dynamodb.AttributeType.STRING },
     });
 
     //Create table of historical trades 
     const historicaltable = new dynamodb.Table(this, 'HistoricTradesTable', {
       tableName: 'historicaltradestable',
-      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      partitionKey: { name: 'date', type: dynamodb.AttributeType.STRING },
     });
 
     //Create s3 Bucket to store models and artifacts
@@ -84,7 +106,7 @@ export class IntellivestTradingBotCdkStack extends Stack {
       })
     );
 
-    newLambda.addToRolePolicy(
+    buyingLambda.addToRolePolicy(
       new PolicyStatement({
         actions: [
           's3:ListBucket'],
@@ -93,7 +115,7 @@ export class IntellivestTradingBotCdkStack extends Stack {
       })
     );
 
-    newLambda.addToRolePolicy(
+    buyingLambda.addToRolePolicy(
       new PolicyStatement({
         actions: [
           's3:GetObject', 

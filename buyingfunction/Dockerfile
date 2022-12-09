@@ -1,7 +1,7 @@
 FROM --platform=linux/amd64 public.ecr.aws/lambda/python:3.8
 
 # Copy function code
-COPY app.py ModelLoaderS3.py features.py yfinanceDAO.py TimeSeriesPrep.py ${LAMBDA_TASK_ROOT}
+COPY app.py auth_params.py ModelLoaderS3.py features.py yfinanceDAO.py TimeSeriesPrep.py ${LAMBDA_TASK_ROOT}
 
 # Install the function's dependencies using file requirements.txt
 # from your project folder.
