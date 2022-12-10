@@ -31,10 +31,10 @@ export class IntellivestTradingBotCdkStack extends Stack {
 
     // Run every weekday day at 1:30PM UTC
     // See https://docs.aws.amazon.com/lambda/latest/dg/tutorial-scheduled-events-schedule-expressions.html
-    const eventRuleDaily = new events.Rule(this, 'tradeClosingSchedule', {
+    const eventRuleDaily = new events.Rule(this, 'buyingSchedule', {
       schedule: events.Schedule.cron({ 
         minute: '30', 
-        hour: '13',
+        hour: '20',
         month: '*', 
         weekDay: 'MON-FRI', 
         year: '*'
@@ -54,7 +54,7 @@ export class IntellivestTradingBotCdkStack extends Stack {
     // Run every 30 seconds in open trading hours (starting 30 minutes early)
     const eventRuleMonitor = new events.Rule(this, 'monitorSchedule', {
       schedule: events.Schedule.cron({ 
-        minute: '*/30', 
+        minute: '*', 
         hour: '9-17',
         month: '*', 
         weekDay: 'MON-FRI', 

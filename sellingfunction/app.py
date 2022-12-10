@@ -21,7 +21,7 @@ dynamodb = boto3.resource('dynamodb')
 tradestable = dynamodb.Table('tradestable')
 historictrades = dynamodb.Table('historicaltradestable')
 
-current_price = api.get_snapshot('SPY').latest_quote.ap
+current_price = float(api.get_snapshot('SPY').latest_quote.ap)
 
 def close_trade(opentrade, outcome):
     #close trade with alpaca
@@ -30,7 +30,7 @@ def close_trade(opentrade, outcome):
         qty=opentrade['shares'],
         side='sell',
         type='market',
-        time_in_force='gtc'
+        time_in_force='day'
     )
     #calculate profit
     profit = (current_price - opentrade['bought_price']) * opentrade['shares']
@@ -60,7 +60,7 @@ def handler(event, context):
             close_trade(opentrade, 'STOP')
         elif opentrade['target'] <= current_price:
             close_trade(opentrade, 'PROFIT')
-        elif opentrade['date'] == trade_expiration:
+        elif datetime.fromisoformat(opentrade['date']) >= datetime.fromisoformat(trade_expiration):
             close_trade(opentrade, 'EXPIRED')
 
     return {
