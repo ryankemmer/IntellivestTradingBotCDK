@@ -24,21 +24,22 @@ historictrades = dynamodb.Table('historicaltradestable')
 current_price = float(api.get_snapshot('SPY').latest_quote.ap)
 
 def close_trade(opentrade, outcome):
+    logger.info('Closing trade')
     #close trade with alpaca
     api.submit_order(
         symbol='SPY',
-        qty=opentrade['shares'],
+        qty=float(opentrade['shares']),
         side='sell',
         type='market',
         time_in_force='day'
     )
     #calculate profit
-    profit = (current_price - opentrade['bought_price']) * opentrade['shares']
+    profit = (Decimal(current_price) - opentrade['bought_price']) * opentrade['shares']
     #delete from trades
-    tradestable.delete_item(Key = opentrade)
+    tradestable.delete_item(Key = {"date": opentrade["date"]})
     #manipulate JSON 
-    opentrade['sell_price'] = current_price
-    opentrade['profit'] = Decimal(str(round(profit,2)))
+    opentrade['sell_price'] = Decimal(current_price)
+    opentrade['profit'] = Decimal(profit)
     opentrade['date_sold'] = current_date
     opentrade['time_sold'] = now
     opentrade['outcome'] = outcome
