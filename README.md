@@ -8,11 +8,11 @@ The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
 * Edit python lambda code in `buyingfunction` folder to update buying logic
 * Edit python lambda code in `sellingfunction` folder to update selling logic
-* Run `pipreqs buyingfunction --force` and `pipreqs sellingfunction --force` in the root directory of the project to update Python dependencies
+* Run `pipreqs src/buyingfunction --force` and `pipreqs src/sellingfunction --force` in the root directory of the project to update Python dependencies
 * <b>Optional</b> - test to make sure container will build
 
 ```
-docker build -t functions .
+docker build -t src/buyingfunction .
 docker run -p 9000:8080 functions
 
 curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{}'

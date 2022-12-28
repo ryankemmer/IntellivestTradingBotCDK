@@ -1,4 +1,4 @@
-import { Stack, StackProps, Duration} from 'aws-cdk-lib';
+import { Stack, StackProps, Duration } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { aws_lambda as lambda } from 'aws-cdk-lib';
 import { aws_events_targets as targets } from 'aws-cdk-lib';
@@ -25,7 +25,7 @@ export class IntellivestTradingBotCdkStack extends Stack {
       functionName: "buyinglambda",
       memorySize: 500,
       timeout: Duration.minutes(10),
-      code: lambda.DockerImageCode.fromImageAsset('buyingfunction'),
+      code: lambda.DockerImageCode.fromImageAsset('src/buyingfunction'),
       role: lambdaRole,
     });
 
@@ -47,7 +47,7 @@ export class IntellivestTradingBotCdkStack extends Stack {
       functionName: "sellinglambda",
       memorySize: 500,
       timeout: Duration.minutes(1),
-      code: lambda.DockerImageCode.fromImageAsset('sellingfunction'),
+      code: lambda.DockerImageCode.fromImageAsset('src/sellingfunction'),
       role: lambdaRole,
     });
 

@@ -1,4 +1,5 @@
 import logging
+logging.basicConfig()
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 import alpaca_trade_api as tradeapi
@@ -21,7 +22,7 @@ dynamodb = boto3.resource('dynamodb')
 tradestable = dynamodb.Table('tradestable')
 historictrades = dynamodb.Table('historicaltradestable')
 
-current_price = float(api.get_snapshot('SPY').latest_quote.ap)
+current_price = float(api.get_latest_trade('SPY').p)
 
 def close_trade(opentrade, outcome):
     logger.info('Closing trade')
@@ -38,8 +39,8 @@ def close_trade(opentrade, outcome):
     #delete from trades
     tradestable.delete_item(Key = {"date": opentrade["date"]})
     #manipulate JSON 
-    opentrade['sell_price'] = Decimal(current_price)
-    opentrade['profit'] = Decimal(profit)
+    opentrade['sell_price'] = Decimal(str(round(current_price, 2)))
+    opentrade['profit'] = Decimal(str(round(profit, 2)))
     opentrade['date_sold'] = current_date
     opentrade['time_sold'] = now
     opentrade['outcome'] = outcome
@@ -58,10 +59,13 @@ def handler(event, context):
         trade_expiration = opentrade['expiration_date']
 
         if opentrade['stop'] >= current_price: 
+            logger.info('Trade STOP')
             close_trade(opentrade, 'STOP')
         elif opentrade['target'] <= current_price:
+            logger.info('Trade PROFIT')
             close_trade(opentrade, 'PROFIT')
         elif datetime.fromisoformat(opentrade['date']) >= datetime.fromisoformat(trade_expiration):
+            logger.info('Trade EXPIRED')
             close_trade(opentrade, 'EXPIRED')
 
     return {
