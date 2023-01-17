@@ -1,6 +1,0 @@
-alpaca_trade_api==2.3.0
-boto3==1.26.22
-catboost==1.1.1
-numpy==1.23.5
-pandas==1.5.2
-yfinance==0.1.87

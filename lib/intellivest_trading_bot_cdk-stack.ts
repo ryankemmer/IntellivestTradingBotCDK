@@ -25,7 +25,7 @@ export class IntellivestTradingBotCdkStack extends Stack {
       functionName: "buyinglambda",
       memorySize: 500,
       timeout: Duration.minutes(10),
-      code: lambda.DockerImageCode.fromImageAsset('src/buyingfunction'),
+      code: lambda.DockerImageCode.fromImageAsset('src/lambda', {cmd: ['buyingFunction.handler']}),
       role: lambdaRole,
     });
 
@@ -47,7 +47,7 @@ export class IntellivestTradingBotCdkStack extends Stack {
       functionName: "sellinglambda",
       memorySize: 500,
       timeout: Duration.minutes(1),
-      code: lambda.DockerImageCode.fromImageAsset('src/sellingfunction'),
+      code: lambda.DockerImageCode.fromImageAsset('src/lambda', {cmd: ['sellingFunction.handler']}),
       role: lambdaRole,
     });
 

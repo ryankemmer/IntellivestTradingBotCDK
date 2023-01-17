@@ -4,7 +4,9 @@ import {
     aws_ecs as ecs,
     aws_ec2 as ec2,
     aws_iam as iam,
-    aws_lambda as lambda
+    aws_lambda as lambda,
+    aws_s3 as s3,
+    aws_dynamodb as dynamodb
   } from "aws-cdk-lib";
 
 export class TrainerStack extends Stack {
@@ -83,7 +85,7 @@ export class TrainerStack extends Stack {
             functionName: "trainTriggerLambda",
             memorySize: 500,
             timeout: Duration.minutes(1),
-            code: lambda.DockerImageCode.fromImageAsset('src/triggerfunction'),
+            code: lambda.DockerImageCode.fromImageAsset('src/lambda', {cmd: ['triggerFunction.handler']}),
             environment: {
                 ECS_TASK_ARN: ECSTaskRunner.taskDefinitionArn,
                 ECS_CLUSTER_ARN: cluster.clusterArn,
@@ -93,6 +95,18 @@ export class TrainerStack extends Stack {
             role: lambdaRoleTrigger,
         });
 
+        //Create DynamoDB to store results
+        const tradestable = new dynamodb.Table(this, 'ResultsTable', {
+            tableName: 'resultstable',
+            partitionKey: { name: 'date', type: dynamodb.AttributeType.STRING },
+        });
 
+        //Create s3 Bucket to store models and artifacts
+        const bucket = new s3.Bucket(this, 'ModelBucket', {
+            versioned: false,
+            bucketName: "modelbucketintellivest",
+            publicReadAccess: false,
+            blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+        });
     };
 }

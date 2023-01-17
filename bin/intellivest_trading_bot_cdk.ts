@@ -5,4 +5,4 @@ import { TrainerStack } from '../lib/trainer-stack';
 
 const app = new App();
 new IntellivestTradingBotCdkStack(app, 'IntellivestTradingBotCdkStack', {});
-new TrainerStack(app, 'TrainerStack', {stackName: 'TrainerStack'})
+//new TrainerStack(app, 'TrainerStack', {stackName: 'TrainerStack'})
