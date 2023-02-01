@@ -55,7 +55,7 @@ export class IntellivestTradingBotCdkStack extends Stack {
     const eventRuleMonitor = new events.Rule(this, 'monitorSchedule', {
       schedule: events.Schedule.cron({ 
         minute: '*', 
-        hour: '9-17',
+        hour: '14-21',
         month: '*', 
         weekDay: 'MON-FRI', 
         year: '*'
