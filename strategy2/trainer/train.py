@@ -420,4 +420,6 @@ def main():
     t.train()
 
 if __name__ == "__main__":
+    if os.environ['HOME'] == 'production':
+        print('here')
     main()

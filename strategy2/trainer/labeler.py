@@ -7,7 +7,7 @@ class labeler:
         # how many days we hold the stock which set the vertical barrier
         self.T_FINAL = t_final
         #the up and low boundary multipliers
-        self.UPPER_LOWER_MULTIPLIERS = [volitility_multiplier, volitility_multiplier]
+        self.UPPER_LOWER_MULTIPLIERS = [volitility_multiplier, volitility_multiplier/3]
 
     def get_Daily_Volatility(self, close,span0=10):
         # simple percentage returns

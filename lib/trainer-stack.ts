@@ -45,6 +45,7 @@ export class TrainerStack extends Stack {
             containerName: `${props?.stackName}-container`,
             image: ecs.ContainerImage.fromAsset('src/trainer'),
             environment: {
+                MODE: "production",
                 NORMAL_ENV_VAR: "example"
             },
             logging: ecs.LogDriver.awsLogs({ streamPrefix: `${props?.stackName}-container-logs` })
